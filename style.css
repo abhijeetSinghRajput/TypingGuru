@@ -33,6 +33,14 @@ main{
     position: relative;
 }
 
+.cursor{
+    height: 35px;
+    position: absolute;
+    width: 3px;
+    background-color: var(--primary);
+    top: 4px;
+    left: 0px;
+}
 
 @keyframes blink {
     0%, 100%{

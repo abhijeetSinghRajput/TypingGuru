@@ -32,65 +32,93 @@ function renderWords(length) {
 const main = document.getElementById('main');
 const cursor = document.querySelector('.cursor');
 
-main.addEventListener('keydown', ({key, ctrlKey})=>{
-    const expected = (!currentLetter) ? ' ' : currentLetter.textContent;
-
-    //Booleans
+main.addEventListener('keydown', ({ key, ctrlKey }) => {
+    const expected = currentLetter ? currentLetter.textContent : ' ';
     const isLetter = key.length === 1 && key !== ' ';
-    const isSpace = key == ' ';
+    const isSpace = key === ' ';
     const isBackspace = key === 'Backspace';
 
-    if(isLetter){
-        if(!currentLetter){
+    // !currentLetter indicated the end of word
+    if (isLetter) {
+        if (!currentLetter) {
             const extraLetter = document.createElement('letter');
             extraLetter.className = 'incorrect extra';
             extraLetter.textContent = key;
             currentWord.appendChild(extraLetter);
         }
-        else{
-            currentLetter.className = (key == expected)? 'correct' : 'incorrect';
+        else {
+            currentLetter.className = (key === expected) ? 'correct' : 'incorrect';
             currentLetter = currentLetter.nextElementSibling;
         }
     }
-    else if(isSpace){
-        if(!currentLetter){
-            let temp = currentLetter;
-            while(temp){
-                temp.className = 'incorrect';
-                temp = temp.nextElementSibling;
-            }
+    //handling space
+    else if (isSpace) {
+        let temp = currentLetter;
+        while (temp) {
+            temp.className = 'incorrect';
+            temp = temp.nextElementSibling;
         }
 
         currentWord = currentWord.nextElementSibling;
-        currentLetter = currentWord.children[0];
+        currentLetter = currentWord.firstElementChild;
     }
-    else if(isBackspace){
-        let prevLetter;
-        if(!currentLetter){
-            currentLetter = currentWord.lastElementChild;
-        }
-        else{
-            prevLetter = currentLetter.previousElementSibling;
-            if(prevLetter){
-                currentLetter = prevLetter;
-            }
-            else{
-                // at the beginning can't back further
-                if(!currentWord.previousElementSibling){
-                    return;
-                }
-                currentWord = currentWord.previousElementSibling;
-                currentLetter = currentWord.lastElementChild;
-            }
-        }
+    //backspace
+    handleBackspace(isBackspace, ctrlKey);
 
+    // move the cursor
+    if (currentLetter) {
+        cursor.style.top = currentLetter.offsetTop + 'px';
+        cursor.style.left = currentLetter.offsetLeft + 'px';
+    }
+    else if (isLetter) {
+        leftValue = +cursor.style.left.replace('px', '');
+        cursor.style.left = leftValue + currentWord.lastElementChild.offsetWidth + 'px';
+    }
+})
+
+function handleBackspace(isBackspace, ctrlKey) {
+    if (!isBackspace) return;
+
+    //EOW then curren is last letter of current word
+    if (!currentLetter) {
+        currentLetter = currentWord.lastElementChild;
+
+        //erase the extra incorrect word
         if(currentLetter.classList.contains('extra')){
-            prevLetter = currentLetter.previousElementSibling;
             currentLetter.remove();
             currentLetter = null;
-            return;
+
+            // move the cursor at the end of the word
+            leftValue = +cursor.style.left.replace('px', '');
+            cursor.style.left = leftValue - currentWord.lastElementChild.offsetWidth + 'px';
         }
-        currentLetter.className = '';
     }
-    console.log(currentLetter, !currentLetter);
-})
+    else {
+        const prevWord = currentWord.previousElementSibling;
+        const prevLetter = currentLetter.previousElementSibling;
+
+        if (prevLetter) {
+            currentLetter = prevLetter;
+        }
+        //at the beginning of current word (move to the previous word. if any)
+        else if (prevWord) {
+            currentWord = prevWord;
+            currentLetter = prevWord.lastElementChild;
+        }
+    }
+
+    // erase the whole word
+    if (ctrlKey) {
+        [...currentWord.children].forEach(letter=>{
+            if(letter.classList.contains('extra')){
+                letter.remove();
+            }
+            else{
+                letter.className = '';
+            }
+        })
+        currentLetter = currentWord.firstElementChild;
+    }
+    
+    if(currentLetter) currentLetter.className = '';
+}
