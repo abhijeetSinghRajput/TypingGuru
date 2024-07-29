@@ -34,12 +34,12 @@ main{
 }
 
 .cursor{
-    height: 35px;
     position: absolute;
     width: 3px;
     background-color: var(--primary);
     top: 4px;
     left: 0px;
+    transition: .1s;
 }
 
 @keyframes blink {
@@ -53,6 +53,7 @@ main{
 
 .word{
     margin: 4px;
+    display: flex;
 }
 letter{
     font-size: 30px;

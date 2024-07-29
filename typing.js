@@ -29,8 +29,20 @@ function renderWords(length) {
     currentLetter = document.querySelector('letter');
 }
 
+window.addEventListener('resize',()=>{
+    if (currentLetter) {
+        cursor.style.top = currentLetter.offsetTop + 'px';
+        cursor.style.left = currentLetter.offsetLeft + 'px';
+    }
+    else{
+        cursor.style.top = currentWord.lastElementChild.offsetTop + 'px';
+        cursor.style.left = currentWord.lastElementChild.offsetLeft + currentWord.lastElementChild.offsetWidth + 'px';
+    }
+})
+
 const main = document.getElementById('main');
 const cursor = document.querySelector('.cursor');
+cursor.style.height = currentWord.clientHeight + 'px';
 
 main.addEventListener('keydown', ({ key, ctrlKey }) => {
     const expected = currentLetter ? currentLetter.textContent : ' ';
@@ -82,16 +94,6 @@ function handleBackspace(isBackspace, ctrlKey) {
     //EOW then curren is last letter of current word
     if (!currentLetter) {
         currentLetter = currentWord.lastElementChild;
-
-        //erase the extra incorrect word
-        if(currentLetter.classList.contains('extra')){
-            currentLetter.remove();
-            currentLetter = null;
-
-            // move the cursor at the end of the word
-            leftValue = +cursor.style.left.replace('px', '');
-            cursor.style.left = leftValue - currentWord.lastElementChild.offsetWidth + 'px';
-        }
     }
     else {
         const prevWord = currentWord.previousElementSibling;
@@ -105,6 +107,17 @@ function handleBackspace(isBackspace, ctrlKey) {
             currentWord = prevWord;
             currentLetter = prevWord.lastElementChild;
         }
+    }
+
+    //erase the extra incorrect word
+    if(currentLetter.classList.contains('extra')){
+        currentLetter.remove();
+        currentLetter = null;
+
+        // move the cursor at the end of the word
+        const letterWidth = currentWord.lastElementChild.offsetWidth;
+        cursor.style.top = currentWord.lastElementChild.offsetTop + 'px';
+        cursor.style.left = currentWord.lastElementChild.offsetLeft + letterWidth + 'px';
     }
 
     // erase the whole word
