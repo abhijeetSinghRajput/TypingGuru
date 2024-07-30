@@ -1,13 +1,33 @@
-const wordWrapper = document.getElementById('words');
 const texts = [...new Set("When I was in my 5th semester watching a Harvard University lecture on Artificial Intelligence I got know how search tree work in board games and decision making I then created a tic-tac-toe game in a single day This experience ignited a spark in me; an idea took root that I could create a chess engine so advanced that it would be challenging even for seasoned players From that day forward I embarked on a journey into the realm of chess programming diving into a plethora of documents research papers and resources to make this vision a reality".split(' '))];
+
+// html elements
+const wordWrapper = document.getElementById('words');
+const main = document.getElementById('main');
+const cursor = document.getElementById('cursor');
+const time = document.getElementById('time'); // textContent = 30
+const LINES = 3;
+
+let currentWord, currentLetter;
+let letterWidth, lineHeight;
+let typingStart = false;
+
+newGame();
+function newGame() {
+    currentLetter = null;
+    currentWord = null;
+    typingStart = false;
+
+    renderWords(200);
+
+    cursor.style.top = currentLetter.offsetTop + 'px';
+    cursor.style.left = currentLetter.offsetLeft + 'px';
+}
+
 
 function getRandomWord() {
     let randomIndex = Math.floor(Math.random() * texts.length);
     return texts[randomIndex];
 }
-
-let currentWord, currentLetter;
-renderWords(20);
 
 function renderWords(length) {
     function letterFragments(word) {
@@ -15,6 +35,7 @@ function renderWords(length) {
             return `<letter>${letter}</letter>`
         })
     }
+
     let htmlFragments = '';
     for (let i = 0; i < length; ++i) {
         const word = getRandomWord();
@@ -25,24 +46,31 @@ function renderWords(length) {
     }
 
     wordWrapper.innerHTML = htmlFragments;
+    document.querySelector('.word:last-child').innerHTML += '<letter>.</letter>';
+
+    // Initializing variables
     currentWord = document.querySelector('.word');
     currentLetter = document.querySelector('letter');
+
+    letterWidth = currentLetter.offsetWidth;
+    cursor.style.height = currentWord.offsetHeight + 'px';
+    lineHeight = 8 + currentWord.offsetHeight;
+    wordWrapper.style.height = (LINES  * lineHeight) + 'px';
 }
 
-window.addEventListener('resize',()=>{
+window.addEventListener('resize', () => {
     if (currentLetter) {
         cursor.style.top = currentLetter.offsetTop + 'px';
         cursor.style.left = currentLetter.offsetLeft + 'px';
     }
-    else{
+    else {
         cursor.style.top = currentWord.lastElementChild.offsetTop + 'px';
         cursor.style.left = currentWord.lastElementChild.offsetLeft + currentWord.lastElementChild.offsetWidth + 'px';
     }
+
+    letterWidth = currentWord.firstElementChild.offsetWidth;
 })
 
-const main = document.getElementById('main');
-const cursor = document.querySelector('.cursor');
-cursor.style.height = currentWord.clientHeight + 'px';
 
 main.addEventListener('keydown', ({ key, ctrlKey }) => {
     const expected = currentLetter ? currentLetter.textContent : ' ';
@@ -50,6 +78,10 @@ main.addEventListener('keydown', ({ key, ctrlKey }) => {
     const isSpace = key === ' ';
     const isBackspace = key === 'Backspace';
 
+    if(!typingStart){
+        typingStart = true;
+    }
+    
     // !currentLetter indicated the end of word
     if (isLetter) {
         if (!currentLetter) {
@@ -77,14 +109,35 @@ main.addEventListener('keydown', ({ key, ctrlKey }) => {
     //backspace
     handleBackspace(isBackspace, ctrlKey);
 
+
+    const lastLine = (LINES - 1) * lineHeight;
+    if(cursor.offsetTop > lastLine){
+        
+        //clear the first line
+        const wordsOnFirstLine = [...wordWrapper.children].filter(child=>child.offsetTop === 4);
+        wordsOnFirstLine.forEach(w=>w.remove());
+
+        cursor.style.top = currentLetter.offsetTop + 'px';
+    }
+
     // move the cursor
     if (currentLetter) {
         cursor.style.top = currentLetter.offsetTop + 'px';
         cursor.style.left = currentLetter.offsetLeft + 'px';
     }
     else if (isLetter) {
-        leftValue = +cursor.style.left.replace('px', '');
-        cursor.style.left = leftValue + currentWord.lastElementChild.offsetWidth + 'px';
+        // place cursor at the end of the word
+        let x = currentWord.lastElementChild.offsetLeft;
+        let y = currentWord.lastElementChild.offsetTop;
+        cursor.style.left = x + letterWidth + 'px';
+        cursor.style.top = y + 'px';
+    }
+
+    
+
+    // end of line (temporary new game)
+    if (isGameOver()) {
+        newGame();
     }
 })
 
@@ -110,28 +163,31 @@ function handleBackspace(isBackspace, ctrlKey) {
     }
 
     //erase the extra incorrect word
-    if(currentLetter.classList.contains('extra')){
+    if (currentLetter.classList.contains('extra')) {
         currentLetter.remove();
         currentLetter = null;
 
         // move the cursor at the end of the word
-        const letterWidth = currentWord.lastElementChild.offsetWidth;
         cursor.style.top = currentWord.lastElementChild.offsetTop + 'px';
         cursor.style.left = currentWord.lastElementChild.offsetLeft + letterWidth + 'px';
     }
 
     // erase the whole word
     if (ctrlKey) {
-        [...currentWord.children].forEach(letter=>{
-            if(letter.classList.contains('extra')){
+        [...currentWord.children].forEach(letter => {
+            if (letter.classList.contains('extra')) {
                 letter.remove();
             }
-            else{
+            else {
                 letter.className = '';
             }
         })
         currentLetter = currentWord.firstElementChild;
     }
-    
-    if(currentLetter) currentLetter.className = '';
+
+    if (currentLetter) currentLetter.className = '';
+}
+
+function isGameOver() {
+    return (!currentLetter && !currentWord.nextElementSibling);
 }
