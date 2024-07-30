@@ -1,10 +1,11 @@
 const DATA_COUNT = 6;
-const labels = [];
+let labels = [];
 for (let i = 0; i < DATA_COUNT; ++i) {
     labels.push(i.toString());
 }
 let wpmData = [0, 20, 20, 60, 60, 80];
 let rawData = [50, 10, 16, 70, 50, 20];
+
 
 const [PRIMARY_COLOR, SECONDARY_COLOR, DANGER_COLOR] = ['#e6db74', '#a6e22e', '#f92672'];
 const data = {
@@ -132,6 +133,6 @@ const config = {
 // Get the 2D context of the canvas and create the chart
 const ctx = document.getElementById('myChart').getContext('2d');
 
-new Chart(ctx, config);
+const myChart = new Chart(ctx, config);
 
 

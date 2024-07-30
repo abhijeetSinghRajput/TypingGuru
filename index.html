@@ -9,18 +9,41 @@
 </head>
 
 <body>
-    <!-- <canvas id="myChart"></canvas> -->
+    <div class="statistics">
+        <div class="container">
+            <div class="chart">
+                <canvas id="myChart"></canvas>
+            </div>
+            <div class="result">
+                <div class="wpm">
+                    <span>wpm:</span>
+                    <span>80</span>
+                </div>
+                <div class="accuracy">
+                    <span>accuracy:</span>
+                    <span>96%</span>
+                </div>
+            </div>
+            <div class="btn-wrapper">
+                <button class="btn">repeat</button>
+                <button class="btn" onclick="newGame()">next</button>
+            </div>
+        </div>
+    </div>
+
     <div class="container">
-        <div id="time">30</div>
-        <main id="main" tabindex="0">
-            <div id="words"></div>
-            <div id="cursor"></div>
-        </main>
+        <div class="wrapper">
+            <div id="time">30</div>
+            <div id="main" tabindex="0">
+                <div id="words"></div>
+                <div id="cursor"></div>
+            </div>
+        </div>
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </body>
+<script src="chart.js"></script>
 <script src="typing.js"></script>
-<!-- <script src="chart.js"></script> -->
 
 </html>

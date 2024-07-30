@@ -5,24 +5,61 @@ const wordWrapper = document.getElementById('words');
 const main = document.getElementById('main');
 const cursor = document.getElementById('cursor');
 const time = document.getElementById('time'); // textContent = 30
+const statistics = document.querySelector('.statistics');
 const LINES = 3;
+
+let totalTypedChar = 0;
+let totalTypedWords = 0;
+let correctWordChar = 0;
+let incorrectWordChar = 0;
+
 
 let currentWord, currentLetter;
 let letterWidth, lineHeight;
-let typingStart = false;
+let isStart = false;
+let startTime = null;
+
 
 newGame();
 function newGame() {
+    statistics.classList.remove('active');
     currentLetter = null;
     currentWord = null;
-    typingStart = false;
 
-    renderWords(200);
+    renderWords(20);
 
     cursor.style.top = currentLetter.offsetTop + 'px';
     cursor.style.left = currentLetter.offsetLeft + 'px';
 }
 
+let intervalId;
+function start() {
+    wpmData = [];
+    rawData = [];
+
+    isStart = true;
+    startTime = Date.now();
+    intervalId = setInterval(() => {
+        calculateTypingStats();
+        time.textContent -= 1;
+        if (time.textContent === '0') terminate();
+    }, 1000);
+}
+
+function terminate() {
+    console.log('over');
+    clearInterval(intervalId);
+    labels = Array.from({ length: wpmData.length }, (_, i) => i);
+    isStart = false;
+    newGame();
+    time.textContent = '30';
+    myChart.data.datasets[0].data = wpmData;
+    myChart.data.datasets[1].data = rawData;
+    myChart.data.datasets[2].data = []; // errors
+    myChart.data.labels = labels;
+    myChart.update();
+    statistics.classList.add('active');
+}
 
 function getRandomWord() {
     let randomIndex = Math.floor(Math.random() * texts.length);
@@ -55,7 +92,7 @@ function renderWords(length) {
     letterWidth = currentLetter.offsetWidth;
     cursor.style.height = currentWord.offsetHeight + 'px';
     lineHeight = 8 + currentWord.offsetHeight;
-    wordWrapper.style.height = (LINES  * lineHeight) + 'px';
+    wordWrapper.style.height = (LINES * lineHeight) + 'px';
 }
 
 window.addEventListener('resize', () => {
@@ -78,10 +115,10 @@ main.addEventListener('keydown', ({ key, ctrlKey }) => {
     const isSpace = key === ' ';
     const isBackspace = key === 'Backspace';
 
-    if(!typingStart){
-        typingStart = true;
+    if (!isStart) {
+        start();
     }
-    
+
     // !currentLetter indicated the end of word
     if (isLetter) {
         if (!currentLetter) {
@@ -94,6 +131,7 @@ main.addEventListener('keydown', ({ key, ctrlKey }) => {
             currentLetter.className = (key === expected) ? 'correct' : 'incorrect';
             currentLetter = currentLetter.nextElementSibling;
         }
+        totalTypedChar++;
     }
     //handling space
     else if (isSpace) {
@@ -102,23 +140,19 @@ main.addEventListener('keydown', ({ key, ctrlKey }) => {
             temp.className = 'incorrect';
             temp = temp.nextElementSibling;
         }
+        validateCurrentWord();
 
         currentWord = currentWord.nextElementSibling;
+        if (!currentWord) {
+            terminate();
+            return;
+        }
         currentLetter = currentWord.firstElementChild;
+        totalTypedChar++;
+        totalTypedWords++;
     }
     //backspace
     handleBackspace(isBackspace, ctrlKey);
-
-
-    const lastLine = (LINES - 1) * lineHeight;
-    if(cursor.offsetTop > lastLine){
-        
-        //clear the first line
-        const wordsOnFirstLine = [...wordWrapper.children].filter(child=>child.offsetTop === 4);
-        wordsOnFirstLine.forEach(w=>w.remove());
-
-        cursor.style.top = currentLetter.offsetTop + 'px';
-    }
 
     // move the cursor
     if (currentLetter) {
@@ -133,11 +167,20 @@ main.addEventListener('keydown', ({ key, ctrlKey }) => {
         cursor.style.top = y + 'px';
     }
 
-    
+    // remove the first line
+    const lastLine = (LINES - 1) * lineHeight;
+    if (parseInt(cursor.style.top) > lastLine) {
+        //clear the first line
+        const wordsOnFirstLine = [...wordWrapper.children].filter(child => child.offsetTop === 4);
+        wordsOnFirstLine.forEach(w => w.remove());
+
+        cursor.style.top = currentLetter.offsetTop + 'px';
+    }
 
     // end of line (temporary new game)
     if (isGameOver()) {
-        newGame();
+        totalTypedWords++;
+        terminate();
     }
 })
 
@@ -188,6 +231,30 @@ function handleBackspace(isBackspace, ctrlKey) {
     if (currentLetter) currentLetter.className = '';
 }
 
+function validateCurrentWord() {
+    //not incorrect letter
+    if (!currentWord.querySelector('.incorrect')) {
+        currentWord.classList.add('correct');
+        correctWordChar += currentWord.childElementCount;
+    }
+    else {
+        currentWord.classList.add('incorrect');
+        incorrectWordChar += currentWord.querySelectorAll('letter:not(.extra)').length;
+    }
+}
 function isGameOver() {
     return (!currentLetter && !currentWord.nextElementSibling);
 }
+
+let correctWords = 0, incorrectWords = 0;
+
+function calculateTypingStats() {
+    const duration = (Date.now() - startTime) / 1000; // unit(second)
+    WPM = Math.ceil(correctWordChar / 5) * 60 / duration;
+    raw_WPM = Math.ceil((correctWordChar + incorrectWordChar) / 5) * 60 / duration;
+
+
+    wpmData.push(Math.round(WPM));
+    rawData.push(Math.round(raw_WPM));
+}
+
