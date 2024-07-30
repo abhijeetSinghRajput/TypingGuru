@@ -21,6 +21,7 @@ body{
     display: flex;
     justify-content: center;
     align-items: center;
+    flex-direction: column;
 }
 
 #words{
@@ -31,9 +32,16 @@ body{
 }
 main{
     position: relative;
+    border: none;
+    outline: none;
+}
+
+main:focus .cursor{
+    opacity: 1;
 }
 
 .cursor{
+    opacity: 0;
     position: absolute;
     width: 3px;
     background-color: var(--primary);
