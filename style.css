@@ -177,11 +177,11 @@ letter {
     font-size: 30px;
 }
 
-.correct {
+letter.correct {
     color: var(--white-color);
 }
 
-.incorrect {
+letter.incorrect {
     color: var(--danger-color);
 }
 

@@ -10,6 +10,7 @@ const wpm = document.querySelector('.wpm .value');
 const accuracy = document.querySelector('.accuracy .value');
 const hiddenInput = document.getElementById('hiddenInput');
 const LINES = 3;
+let debugMode = false;
 
 let totalTypedChar = 0;
 let totalCorrectTypedChar = 0;
@@ -129,7 +130,7 @@ main.addEventListener('keyup', ({ key, ctrlKey }) => {
     const isSpace = key === ' ';
     const isBackspace = key === 'Backspace';
 
-    if (!isStart) {
+    if (!isStart && !debugMode) {
         start();
     }
     if (key == expected) {
@@ -197,7 +198,7 @@ main.addEventListener('keyup', ({ key, ctrlKey }) => {
     // end of line (temporary new game)
     if (isGameOver()) {
         totalTypedWords++;
-        terminate();
+        debugMode? newGame() : terminate();
     }
 })
 
@@ -231,7 +232,6 @@ function handleBackspace(isBackspace, ctrlKey) {
         cursor.style.top = currentWord.lastElementChild.offsetTop + 'px';
         cursor.style.left = currentWord.lastElementChild.offsetLeft + letterWidth + 'px';
     }
-
     // erase the whole word
     if (ctrlKey) {
         [...currentWord.children].forEach(letter => {
