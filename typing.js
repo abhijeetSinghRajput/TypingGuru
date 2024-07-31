@@ -8,6 +8,7 @@ const time = document.getElementById('time'); // textContent = 30
 const statistics = document.querySelector('.statistics');
 const wpm = document.querySelector('.wpm .value');
 const accuracy = document.querySelector('.accuracy .value');
+const hiddenInput = document.getElementById('hiddenInput');
 const LINES = 3;
 
 let totalTypedChar = 0;
@@ -22,7 +23,15 @@ let letterWidth, lineHeight;
 let isStart = false;
 let startTime = null;
 
-
+main.onfocus = () => {
+    hiddenInput.focus();
+}
+hiddenInput.onfocus = () => {
+    cursor.style.visibility = 'visible';
+}
+hiddenInput.onblur = () => {
+    cursor.style.visibility = 'hidden';
+}
 newGame();
 function newGame() {
     statistics.classList.remove('active');
@@ -114,7 +123,7 @@ window.addEventListener('resize', () => {
 })
 
 
-main.addEventListener('keydown', ({ key, ctrlKey }) => {
+main.addEventListener('input', ({ data: key, ctrlKey }) => {
     const expected = currentLetter ? currentLetter.textContent : ' ';
     const isLetter = key.length === 1 && key !== ' ';
     const isSpace = key === ' ';
@@ -123,7 +132,7 @@ main.addEventListener('keydown', ({ key, ctrlKey }) => {
     if (!isStart) {
         start();
     }
-    if(key == expected){
+    if (key == expected) {
         totalCorrectTypedChar++;
     }
 

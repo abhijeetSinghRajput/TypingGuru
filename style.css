@@ -5,6 +5,7 @@
     font-family: monospace;
     list-style: none;
     text-decoration: none;
+    user-select: none;
 }
 
 :root {
@@ -59,7 +60,7 @@ body {
     align-items: center;
     gap: 8px;
 }
-.statistics .result span:last-child{
+.statistics .result .value{
     color: var(--secondary-color);
     font-size: 40px;
 }
@@ -114,7 +115,12 @@ canvas{
     border: none;
     outline: none;
 }
-
+#main input{
+    height: 0;
+    width: 0;
+    position: absolute;
+    border: none;
+}
 #cursor {
     visibility: hidden;
     position: absolute;
@@ -129,9 +135,6 @@ canvas{
     border-radius: 10px;
 }
 
-#main:focus #cursor {
-    visibility: visible;
-}
 
 @keyframes blink {
 
@@ -180,4 +183,15 @@ letter {
 
 .incorrect {
     color: var(--danger-color);
+}
+
+@media screen and (max-width: 550px) {
+    .statistics .result {
+        margin-top: 20px;
+        padding: 20px;
+        font-size: 22px;
+    }
+    .statistics .result .value{
+        font-size: 30px;
+    }
 }
