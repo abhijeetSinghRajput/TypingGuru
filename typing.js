@@ -123,7 +123,7 @@ window.addEventListener('resize', () => {
 })
 
 
-main.addEventListener('input', ({ data: key, ctrlKey }) => {
+main.addEventListener('keyup', ({ key, ctrlKey }) => {
     const expected = currentLetter ? currentLetter.textContent : ' ';
     const isLetter = key.length === 1 && key !== ' ';
     const isSpace = key === ' ';
