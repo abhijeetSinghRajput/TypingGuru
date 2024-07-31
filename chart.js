@@ -53,6 +53,7 @@ const config = {
     type: 'line',
     data: data,
     options: {
+        maintainAspectRatio: false,
         responsive: true,
         interaction: {
             intersect: false,

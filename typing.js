@@ -6,9 +6,12 @@ const main = document.getElementById('main');
 const cursor = document.getElementById('cursor');
 const time = document.getElementById('time'); // textContent = 30
 const statistics = document.querySelector('.statistics');
+const wpm = document.querySelector('.wpm .value');
+const accuracy = document.querySelector('.accuracy .value');
 const LINES = 3;
 
 let totalTypedChar = 0;
+let totalCorrectTypedChar = 0;
 let totalTypedWords = 0;
 let correctWordChar = 0;
 let incorrectWordChar = 0;
@@ -26,7 +29,7 @@ function newGame() {
     currentLetter = null;
     currentWord = null;
 
-    renderWords(20);
+    renderWords(200);
 
     cursor.style.top = currentLetter.offsetTop + 'px';
     cursor.style.left = currentLetter.offsetLeft + 'px';
@@ -59,6 +62,8 @@ function terminate() {
     myChart.data.labels = labels;
     myChart.update();
     statistics.classList.add('active');
+    wpm.textContent = wpmData[wpmData.length - 1];
+    accuracy.textContent = Math.round((totalCorrectTypedChar / totalTypedChar) * 100);
 }
 
 function getRandomWord() {
@@ -117,6 +122,9 @@ main.addEventListener('keydown', ({ key, ctrlKey }) => {
 
     if (!isStart) {
         start();
+    }
+    if(key == expected){
+        totalCorrectTypedChar++;
     }
 
     // !currentLetter indicated the end of word

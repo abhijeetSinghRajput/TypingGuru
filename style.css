@@ -32,16 +32,9 @@ body {
     flex-direction: column;
 }
 
-#words {
-    display: flex;
-    flex-wrap: wrap;
-    width: 90vw;
-    position: relative;
-    letter-spacing: 1px;
-    overflow: hidden;
-}
 
 .statistics{
+    padding-top: 20vh;
     position: fixed;
     top: 0;
     left: 0;
@@ -95,16 +88,17 @@ body {
     background-color: var(--primary-color);
     color: var(--bg-dark-color);
 }
-.chart {
-    margin-top: 16vh;
+.chart{
     grid-area: chart;
     width: 100%;
     max-height: 200px;
     height: 200px;
-    /* border: 1px solid white; */
-    display: flex;
-    align-items: center;
-    justify-content: center;
+}
+canvas{
+    display: block;
+    /* object-fit: contain; */
+    height: 100%;
+    width: 100% !important;
 }
 .container > .wrapper{
     margin-top: 16vh;
@@ -160,9 +154,20 @@ body {
     margin-bottom: 20px;
 }
 
-.word {
-    margin: 4px;
+
+#words{
+    /* border: 1px solid white; */
+    width: 90vw;
+    max-width: 100%;
     display: flex;
+    flex-wrap: wrap;
+    align-content: flex-start;
+    overflow: hidden;
+}
+
+.word{
+    display: flex;
+    margin: 4px;
 }
 
 letter {
